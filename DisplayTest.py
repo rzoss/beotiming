@@ -72,19 +72,28 @@ time.sleep(0.04)#~40 ms
 #resp = spi.xfer2([0x06])
 #time.sleep(0.00003)#~30 us
 GPIO.output(PIN_CSB, False)
-
 # 0x39: 8-Bit Datenlänge, 3 Zeilen, Instruction table 1
+resp = spi.xfer2([0x39])
+time.sleep(0.00003)#~30 us
 # 0x15: BS: 1/5, 3-zeiliges LCD
+resp = spi.xfer2([0x15])
+time.sleep(0.00003)#~30 us
 # 0x55: Booster ein, Kontrast C5, C4setzen
+resp = spi.xfer2([0x55])
+time.sleep(0.00003)#~30 us
 # 0x6E: Spannungsfolger und Verstärkung setzen
-resp = spi.xfer2([0x39, 0x15, 0x55, 0x6E])
+resp = spi.xfer2([0x6E])
 time.sleep(0.3)#~300 ms
 # 0x70: Kontrast C3, C2, C1 setzen
-# 0x0C: Display ein, Cursor ein, Cursor blinken
-# 0x01: Display löschen, Cursor Home
-# 0x06: Cursor Auto-Increment
-resp = spi.xfer2([0x70, 0x0C, 0x01])
+resp = spi.xfer2([0x70])
 time.sleep(0.00003)#~30 us
+# 0x0C: Display ein, Cursor ein, Cursor blinken
+resp = spi.xfer2([0x0C])
+time.sleep(0.00003)#~30 us
+# 0x01: Display löschen, Cursor Home
+resp = spi.xfer2([0x01])
+time.sleep(0.00003)#~30 us
+# 0x06: Cursor Auto-Increment
 resp = spi.xfer2([0x06])
 GPIO.output(PIN_CSB, True)
 time.sleep(0.00003)#~30 us
