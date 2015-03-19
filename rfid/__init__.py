@@ -47,12 +47,42 @@ try:
 except ImportError:
   from . import ci2c # python3
 
-import time
+import datetime, time
 
-CMD_SELECT_MIFARE = 0x01
-CMD_READ_DATA_PAGE_UL = 0x10
-CMD_GET_FIRMWARE  = 0xF0
-WR_RD_DELAY       = 0.05
+CMD_SELECT_MIFARE      = 0x01
+CMD_READ_DATA_PAGE_UL  = 0x10
+CMD_WRITE_DATA_PAGE_UL = 0x11
+CMD_GET_FIRMWARE       = 0xF0
+WR_RD_DELAY            = 0.05
+
+# Gültige Streckennr. aud der Karte
+global TAG_STATUS_STRECKENVALID
+TAG_STATUS_STRECKENVALID = (1<<0)
+# Gültige Startzeit auf der Karte
+global TAG_STATUS_STARTVALID
+TAG_STATUS_STARTVALID    = (1<<1)
+# Gültige Endzeit auf der Karte
+global TAG_STATUS_ENDVALID
+TAG_STATUS_ENDVALID      = (1<<2)
+# Karte ist Manuel gelöscht worden
+global TAG_STATUS_MANUALCLEARED
+TAG_STATUS_MANUALCLEARED = (1<<3)
+# Karte ist Persönlich
+global TAG_STATUS_REGISTERED
+TAG_STATUS_REGISTERED    = (1<<4)
+
+# Adressen in der RFID-Karte
+# Pagenummer des Status
+RFID_ADR_STATUS = 4
+# Pagenummer der Streckennummer
+RFID_ADR_STRECKENKEY = 5
+# Pagenummer der Startzeit
+RFID_ADR_STARTTIME = 6
+# Pagenummer der Endzeit
+RFID_ADR_ENDTIME = 8
+# Pagenummer der Fahrzeit
+RFID_ADR_RACETIME = 10
+
 
 ci2c.initDefaults()
 
@@ -207,12 +237,77 @@ class SL030:
       return False
 
     # get the data
-    data      = buf[3:length+1]
+    self.data      = buf[3:length+1]
   
     # only return true if Mifare Ultralight
     return True
 
+  def writeDataPageUL(self, page, data):
+    result = ci2c.write(CFG_ADDRESS, [2, CMD_WRITE_DATA_PAGE_UL, page, data[0], data[1], data[2], data[3]])
+    time.sleep(WR_RD_DELAY)
+    #if result != 0:
+    #  error("selectMifareUL:Cannot read, result=" + str(result))
+    #  return False
+      
+    result, buf = ci2c.read(CFG_ADDRESS, 7)
+    #if result != 0:
+    #  error("selectMifareUL:Cannot write, result=" + str(result))
+    #  return False
+      
+    length = buf[0]
+    cmd    = buf[1]
+    status = buf[2] 
 
+    if (status != 0x00):
+      return False
+
+    # get the data
+    if buf[3:length+1] != data:
+      return False
+    else:
+      # only return true if the written data could be read back
+      return True
+
+
+  def getStateUL(self):
+    if not readDataPageUL(RFID_ADR_STATUS):
+      return False
+    else:
+      return True
+        
+  def setStateUL(self, state):
+    if not writeDataPageUL(RFID_ADR_STATUS, [state, 0, 0, 0]):
+      return False
+    else:
+      return True
+
+  def setRaceKeyUL(self, raceKey):
+    if not writeDataPageUL(RFID_ADR_STRECKENKEY, [raceKey, 0, 0, 0]):
+      return False
+    else:
+      return True
+  
+  def setStartTimeUL(self, datetime):
+    if not writeDataPageUL(RFID_ADR_STARTTIME, [datetime.year & 0x00FF, datetime.year >> 8, datetime.month, datetime.day]):
+      return False
+    if not writeDataPageUL(RFID_ADR_STARTTIME+1, [datetime.hour, datetime.minute, datetime.second, 0]):
+      return False
+    else:
+      return True
+
+  def setEndTimeUL(self, datetime):
+    if not writeDataPageUL(RFID_ADR_ENDTIME, [datetime.year & 0x00FF, datetime.year >> 8, datetime.month, datetime.day]):
+      return False
+    if not writeDataPageUL(RFID_ADR_ENDTIME+1, [datetime.hour, datetime.minute, datetime.second, 0]):
+      return False
+    else:
+      return True
+  def setRaceTimeUL(self, hours, minutes, seconds):
+    if not writeDataPageUL(RFID_ADR_RACETIME, [0, hours, minutes, seconds]):
+      return False
+    else:
+      return True  
+      
   def getUID(self):
     return self.uid
 
@@ -224,8 +319,11 @@ class SL030:
 
   def getType(self):
     return self.type
+    
+  def getData(self, byte):
+    return self.data[byte] 
 
-  def getData(self):
+  def getDataString(self):
     return ":".join("{:02x}".format(int(c)) for c in self.data)
 
 #===============================================================================
@@ -257,6 +355,34 @@ def readDataPageUL(page):
   """Try to read a page on a mifare UL tag. Returns False if error"""
   return instance.readDataPageUL(page)
 
+def writeDataPageUL(page, data):
+  """Try to write a page on a mifare UL tag. Returns False if error"""
+  return instance.writeDataPageUL(page, data)
+
+def getStateUL():
+  """Try to read a page on a mifare UL tag. Returns False if error"""
+  return instance.getStateUL()
+  
+def setStateUL(state):  
+  """Try to set state. Returns False if error"""
+  return instance.setStateUL(state)
+  
+def setRaceKeyUL(raceKey):
+  """Try to set race key. Returns False if error"""  
+  return instance.setRaceKeyUL(raceKey)
+  
+def setStartTimeUL(datetime):
+  """Try to set start date/time. Returns False if error"""      
+  return instance.setStartTimeUL(datetime)
+  
+def setEndTimeUL(datetime):
+  """Try to set end date/time. Returns False if error"""     
+  return instance.setEndTimeUL(datetime)    
+  
+def setRaceTimeUL(hours, minutes, seconds):
+  """Try to set race time. Returns False if error"""     
+  return instance.setRaceTimeUL(hours, minutes, seconds)   
+  
 def getUID():
   """Get the unique ID number of the card"""
   return instance.getUID()
@@ -273,7 +399,11 @@ def getTypeName():
   """Get a string representing the name of the type of card in use"""
   return typename(instance.getType())
 
-def getData():
+def getDataString():
   """Get the data of a page"""
-  return instance.getData()
+  return instance.getDataString()
+  
+def getData(byte):
+  """Get a byte of the data of a page"""
+  return instance.getData(byte)
 # END

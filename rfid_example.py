@@ -15,7 +15,8 @@
 
 # Import this module to gain access to the RFID driver
 import rfid
-
+from rfid import TAG_STATUS_STRECKENVALID, TAG_STATUS_STARTVALID
+import datetime
 
 # fill in this map with the names of your card ID's
 cards = {
@@ -49,33 +50,68 @@ while True:
     if not rfid.readDataPageUL(4):
       print("Can't read page")
     else:
-      print("Page 4:" + rfid.getData())
+      print("Page 4: %02X" %rfid.getData(0))
 
     if not rfid.readDataPageUL(5):
       print("Can't read page")
     else:
-      print("Page 5:" + rfid.getData())
+      print("Page 5:" + rfid.getDataString())
       
     if not rfid.readDataPageUL(6):
       print("Can't read page")
     else:
-      print("Page 6:" + rfid.getData())
+      print("Page 6:" + rfid.getDataString())
     
     if not rfid.readDataPageUL(7):
       print("Can't read page")
     else:
-      print("Page 7:" + rfid.getData())  # wait for the card to be removed
+      print("Page 7:" + rfid.getDataString())  # wait for the card to be removed
   
     if not rfid.readDataPageUL(8):
       print("Can't read page")
     else:
-      print("Page 8:" + rfid.getData())  # wait for the card to be removed
+      print("Page 8:" + rfid.getDataString())  # wait for the card to be removed
     
     if not rfid.readDataPageUL(9):
       print("Can't read page")
     else:
-      print("Page 9:" + rfid.getData())  # wait for the card to be removed
+      print("Page 9:" + rfid.getDataString())  # wait for the card to be removed
+     
+    if not rfid.readDataPageUL(10):
+      print("Can't read page")
+    else:
+      print("Page 10:" + rfid.getDataString())  # wait for the card to be removed
+           
+    if not rfid.getStateUL():
+      print("Can't read state")
+    else:
+      print("State %02X:" %rfid.getData(0))  # wait for the card to be removed
+      
+    if not rfid.setStateUL(TAG_STATUS_STRECKENVALID | TAG_STATUS_STARTVALID):
+      print("Can't write state")
+    else:
+      print("Wrote state successfully")  # wait for the card to be removed     
+      
+    if not rfid.setRaceKeyUL(65):
+      print("Can't write race key")
+    else:
+      print("Wrote race key successfully")  # wait for the card to be removed 
    
+    if not rfid.setStartTimeUL(datetime.datetime.now()):
+      print("Can't write start time")
+    else:
+      print("Wrote start time successfully")  # wait for the card to be removed    
+   
+    if not rfid.setEndTimeUL(datetime.datetime.now()):
+      print("Can't write end time")
+    else:
+      print("Wrote end time successfully")  # wait for the card to be removed       
+   
+    if not rfid.setRaceTimeUL(1,23,43):
+      print("Can't write race time")
+    else:
+      print("Wrote race time successfully")  # wait for the card to be removed 
+         
   print("Waiting for card to be removed...")
   rfid.waitNoTag()
   print("Card removed")
