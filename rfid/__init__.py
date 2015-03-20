@@ -302,6 +302,7 @@ class SL030:
       return False
     else:
       return True
+      
   def setRaceTimeUL(self, hours, minutes, seconds):
     if not writeDataPageUL(RFID_ADR_RACETIME, [0, hours, minutes, seconds]):
       return False
