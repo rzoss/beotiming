@@ -8,6 +8,19 @@ except ImportError:
 
 ci2c.initDefaults()  
   
+# How often to poll (in seconds) for a button pressed
+CFG_BUTTON_PRESSED_POLL_TIME = 0.01  
+  
+# Button back
+global BUTTON_BACK
+BUTTON_BACK  = (1<<0)
+# Button OK
+global BUTTON_OK
+BUTTON_OK    = (1<<1)
+# Button next
+global BUTTON_NEXT
+BUTTON_NEXT  = (1<<2)
+    
 class Portexpander:
 
 	# Initialisieren von 8-Bit-I/O-expander
@@ -21,7 +34,7 @@ class Portexpander:
 		ci2c.write(0x20,  [0xFF])
 	
 	# Zustand des Roten LED festlegen
-	def set_LED_Rot(self, state):
+	def setRedLED(self, state):
 		# LED ist an IC3 (adresse 0x21)
 		result, buf = ci2c.read(0x21, 1)
 		data = buf[0]
@@ -32,7 +45,7 @@ class Portexpander:
 		ci2c.write(0x21, [data])
 	
 	# Zustand des Gruenen LED festlegen
-	def set_LED_Gruen(self, state):
+	def setGreenLED(self, state):
 		# LED ist an IC3 (adresse 0x21)
 		state = state << 1
 		result, buf = ci2c.read(0x21, 1)
@@ -44,7 +57,7 @@ class Portexpander:
 		ci2c.write(0x21, [data])
 
 	# Zustand der LED's festlegen
-	def set_LED(self, state_Rot, state_Gruen):
+	def setBothLED(self, state_Rot, state_Gruen):
 		# LED's sind an IC3 (adresse 0x21)
 		state_Gruen = state_Gruen << 1
 		data = state_Rot | 0xFC
@@ -53,7 +66,7 @@ class Portexpander:
 		ci2c.write(0x21, [data])
 	
 	# Zustand der Rueck Taste auslesen
-	def read_Rueck(self):
+	def readBack(self):
 		# Taste ist an IC5 (adresse 0x20)
 		result, buf = ci2c.read(0x20, 1)
 		data = buf[0]
@@ -65,7 +78,7 @@ class Portexpander:
 			return False
 
 	# Zustand der OK Taste auslesen
-	def read_OK(self):
+	def readOK(self):
 		# Taste ist an IC5 (adresse 0x20)
 		result, buf = ci2c.read(0x20, 1)
 		data = buf[0]
@@ -77,7 +90,7 @@ class Portexpander:
 			return False
 
 	# Zustand der Vor Taste auslesen
-	def read_Vor(self):
+	def readNext(self):
 		# Taste ist an IC5 (adresse 0x20)
 		result, buf = ci2c.read(0x20, 1)
 		data = buf[0]
@@ -92,7 +105,7 @@ class Portexpander:
 	# Rueckegabe Rueck_Taste 0x10
 	# Rueckegabe OK_Taste 0x20
 	# Rueckegabe Vor_Taste 0x40
-	def read_Tasten(self):
+	def readButton(self):
 		# Tasten sind an IC5 (adresse 0x20)
 		result, buf = ci2c.read(0x20, 1)
 		data = buf[0]
@@ -106,3 +119,10 @@ class Portexpander:
 			return 0x04
 		else:
 			return 0x00
+	
+	# wait until a button was pressed		
+	def waitForButton(self):
+		while not self.readButton():
+			time.sleep(CFG_BUTTON_PRESSED_POLL_TIME)
+		return self.readButton()
+			

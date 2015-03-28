@@ -86,7 +86,7 @@ class Dogm:
 		new_text = [ord(c) for c in text]
 		# Cursor Position einstellen
 		self.set_cursor()
- 		self.spi.open(0,1)
+		self.spi.open(0,1)
 		time.sleep(0.04)#~40 ms
 
 		self.display_backlight(True)
