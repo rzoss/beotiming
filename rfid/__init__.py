@@ -55,19 +55,19 @@ CMD_WRITE_DATA_PAGE_UL = 0x11
 CMD_GET_FIRMWARE       = 0xF0
 WR_RD_DELAY            = 0.05
 
-# Gültige Streckennr. aud der Karte
+# Gueltige Streckennr. aud der Karte
 global TAG_STATUS_STRECKENVALID
 TAG_STATUS_STRECKENVALID = (1<<0)
-# Gültige Startzeit auf der Karte
+# Gueltige Startzeit auf der Karte
 global TAG_STATUS_STARTVALID
 TAG_STATUS_STARTVALID    = (1<<1)
-# Gültige Endzeit auf der Karte
+# Gueltige Endzeit auf der Karte
 global TAG_STATUS_ENDVALID
 TAG_STATUS_ENDVALID      = (1<<2)
-# Karte ist Manuel gelöscht worden
+# Karte ist Manuel geloescht worden
 global TAG_STATUS_MANUALCLEARED
 TAG_STATUS_MANUALCLEARED = (1<<3)
-# Karte ist Persönlich
+# Karte ist Persoenlich
 global TAG_STATUS_REGISTERED
 TAG_STATUS_REGISTERED    = (1<<4)
 

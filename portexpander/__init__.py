@@ -21,10 +21,10 @@ BUTTON_OK    = (1<<1)
 global BUTTON_NEXT
 BUTTON_NEXT  = (1<<2)
     
-class Portexpander:
+class PCF8574:
 
 	# Initialisieren von 8-Bit-I/O-expander
-	def PCF8574_init(self):
+	def __init__(self):
 		# IC3 adresse 0x21
 		# IC3 P0, P1 als Output
 		# IC3 P2, P3, P4, P5, P6, P7 als Input

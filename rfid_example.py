@@ -31,6 +31,8 @@ cards = {
 
 # MAIN PROGRAM
 
+rfid = rfid.SL030()
+
 while True:
 
   # wait for a card to be detected as present

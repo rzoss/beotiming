@@ -4,9 +4,9 @@ import spidev
 import RPi.GPIO as GPIO
 import time
 
-class Dogm:
+class dogm:
 	#Display initialisieren
-	def display_init(self):
+	def __init__(self):
 		self.PIN_RS = 16
 		self.PIN_CSB = 18
 		self.PIN_RESET = 15
@@ -54,9 +54,6 @@ class Dogm:
 		self.display_CSB(True)
 		time.sleep(0.00003)#~30 us
 
-		# Display Hintergrundbeleuchtung einschalten
-		self.display_backlight(True)
-		self.display_backlight(True)
 		# Display Inhalt loeschen
 		self.clear_display()
 		# SPI Uebertragung beenden
@@ -88,8 +85,6 @@ class Dogm:
 		self.set_cursor()
 		self.spi.open(0,1)
 		time.sleep(0.04)#~40 ms
-
-		self.display_backlight(True)
 
 		self.display_RS(True)
 		self.display_CSB(False)
@@ -135,3 +130,4 @@ class Dogm:
 
 		self.display_CSB(True)
 		self.spi.close()
+
