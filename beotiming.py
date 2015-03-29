@@ -5,9 +5,9 @@ import datetime
 from urllib.request import urlopen
 
 #VERSION="01.00"
-VERSION="00.99"
+VERSION="00.90"
 
-CFG_TAG_PRESENT_POLL_TIME = 0.25
+CFG_TAG_PRESENT_POLL_TIME = 0.10
 
 old_timestring = ""
 
@@ -41,9 +41,9 @@ def init_transition(txt):
         disp.display_write(1,"conn. failed")
         disp.display_write(2,"retry #" + i)
         time.sleep(1)
-    disp.display_write(1,"conn. succesfull")
-    disp.display_write(2,"startup finished")    
-    time.sleep(1)
+    disp.display_write(1,"successfull     ")
+    disp.display_write(2,"start is ready! ")
+    time.sleep(3)
     disp.display_backlight(False)
     # next state idle
     newState = "idle"
