@@ -157,7 +157,7 @@ def write_start_time_transition(txt):
 	# inform user
 	disp.display_write(0, "Zeit gespeichert")
 	disp.display_write(1, "    STARTEN     ")
-	disp.display_write(1, "                ")
+	disp.display_write(2, "                ")
 	exp.setGreenLED(True)
 	exp.setRedLED(False)
 	newState = "beep"
