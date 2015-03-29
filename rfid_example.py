@@ -31,91 +31,91 @@ cards = {
 
 # MAIN PROGRAM
 
-rfid = rfid.SL030()
+tag_reader = rfid.SL030()
 
 while True:
 
   # wait for a card to be detected as present
   print("Waiting for a card...")
-  rfid.waitTag()
+  tag_reader.waitTag()
   print("Card present")
 
   # This demo only uses Mifare cards
-  if not rfid.selectMifareUL():
+  if not tag_reader.selectMifareUL():
     print("This is not a mifare card")
   else:
     # What type of Mifare card is it? (there are different types)
-    print("Card type:" + rfid.getTypeName())
+    print("Card type:" + tag_reader.getTypeName())
 
     # look up the unique ID to see if we recognise the user
-    uid = rfid.getUniqueId()
-    if not rfid.readDataPageUL(4):
+    uid = tag_reader.getUniqueId()
+    if not tag_reader.readDataPageUL(4):
       print("Can't read page")
     else:
-      print("Page 4: %02X" %rfid.getData(0))
+      print("Page 4: %02X" %tag_reader.getData(0))
 
-    if not rfid.readDataPageUL(5):
+    if not tag_reader.readDataPageUL(5):
       print("Can't read page")
     else:
-      print("Page 5:" + rfid.getDataString())
+      print("Page 5:" + tag_reader.getDataString())
       
-    if not rfid.readDataPageUL(6):
+    if not tag_reader.readDataPageUL(6):
       print("Can't read page")
     else:
-      print("Page 6:" + rfid.getDataString())
+      print("Page 6:" + tag_reader.getDataString())
     
-    if not rfid.readDataPageUL(7):
+    if not tag_reader.readDataPageUL(7):
       print("Can't read page")
     else:
-      print("Page 7:" + rfid.getDataString())  # wait for the card to be removed
+      print("Page 7:" + tag_reader.getDataString())  # wait for the card to be removed
   
-    if not rfid.readDataPageUL(8):
+    if not tag_reader.readDataPageUL(8):
       print("Can't read page")
     else:
-      print("Page 8:" + rfid.getDataString())  # wait for the card to be removed
+      print("Page 8:" + tag_reader.getDataString())  # wait for the card to be removed
     
-    if not rfid.readDataPageUL(9):
+    if not tag_reader.readDataPageUL(9):
       print("Can't read page")
     else:
-      print("Page 9:" + rfid.getDataString())  # wait for the card to be removed
+      print("Page 9:" + tag_reader.getDataString())  # wait for the card to be removed
      
-    if not rfid.readDataPageUL(10):
+    if not tag_reader.readDataPageUL(10):
       print("Can't read page")
     else:
-      print("Page 10:" + rfid.getDataString())  # wait for the card to be removed
+      print("Page 10:" + tag_reader.getDataString())  # wait for the card to be removed
            
-    if not rfid.getStateUL():
+    if not tag_reader.getStateUL():
       print("Can't read state")
     else:
-      print("State %02X:" %rfid.getData(0))  # wait for the card to be removed
+      print("State %02X:" %tag_reader.getData(0))  # wait for the card to be removed
       
-    if not rfid.setStateUL(TAG_STATUS_STRECKENVALID | TAG_STATUS_STARTVALID):
+    if not tag_reader.setStateUL(TAG_STATUS_STRECKENVALID | TAG_STATUS_STARTVALID):
       print("Can't write state")
     else:
       print("Wrote state successfully")  # wait for the card to be removed     
       
-    if not rfid.setRaceKeyUL(65):
+    if not tag_reader.setRaceKeyUL(65):
       print("Can't write race key")
     else:
       print("Wrote race key successfully")  # wait for the card to be removed 
    
-    if not rfid.setStartTimeUL(datetime.datetime.now()):
+    if not tag_reader.setStartTimeUL(datetime.datetime.now()):
       print("Can't write start time")
     else:
       print("Wrote start time successfully")  # wait for the card to be removed    
    
-    if not rfid.setEndTimeUL(datetime.datetime.now()):
+    if not tag_reader.setEndTimeUL(datetime.datetime.now()):
       print("Can't write end time")
     else:
       print("Wrote end time successfully")  # wait for the card to be removed       
    
-    if not rfid.setRaceTimeUL(1,23,43):
+    if not tag_reader.setRaceTimeUL(1,23,43):
       print("Can't write race time")
     else:
       print("Wrote race time successfully")  # wait for the card to be removed 
          
   print("Waiting for card to be removed...")
-  rfid.waitNoTag()
+  tag_reader.waitNoTag()
   print("Card removed")
 
 # END

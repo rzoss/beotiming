@@ -4,7 +4,8 @@ import time
 import datetime
 from urllib.request import urlopen
 
-VERSION="01.00"
+#VERSION="01.00"
+VERSION="00.99"
 
 CFG_TAG_PRESENT_POLL_TIME = 0.25
 
@@ -51,11 +52,14 @@ def init_transition(txt):
 def idle_transition(txt):
 	global old_timestring
 	time.sleep(CFG_TAG_PRESENT_POLL_TIME)
-	disp.clear_display()
+	disp.display_backlight(False)
+	exp.setBothLED(False,False)
 	t = datetime.datetime.now()
 	timestring = t.strftime("%H:%M:%S")
 	if not timestring == old_timestring:
+		disp.display_write(0,"   " + t.strftime("%d.%m.%Y") + "   ")
 		disp.display_write(1,"    " + t.strftime("%H:%M:%S") + "    ")
+		disp.display_write(2," beo-timing.ch  ")
 	old_timestring = timestring
 	newState = "check_card"
 	return (newState, txt)
@@ -63,6 +67,8 @@ def idle_transition(txt):
 def check_card_transition(txt):
 	# check if a tag is present
 	if tag_reader.selectMifareUL():
+		disp.display_backlight(True)
+		exp.setRedLED(True)
 		newState = "read_card"
 	else:
 		newState = "idle"
@@ -71,44 +77,58 @@ def check_card_transition(txt):
 def read_card_transition(txt):
 	# check if there was already a race writen to the card
 	tag_reader.getStateUL()
-	if (tag_reader.getData() & TAG_STATUS_STRECKENVALID) and not(tag_reader.getData() & TAG_STATUS_STARTVALID) and not (tag_reader.getData() & TAG_STATUS_ENDVALID) and not (tag_reader.getData() & TAG_STATUS_MANUALCLEARED):
+	if (tag_reader.getData(0) & rfid.TAG_STATUS_STRECKENVALID) and not(tag_reader.getData(0) & rfid.TAG_STATUS_STARTVALID) and not (tag_reader.getData(0) & rfid.TAG_STATUS_ENDVALID) and not (tag_reader.getData(0) & rfid.TAG_STATUS_MANUALCLEARED):
+		exp.setRedLED(True)
+		disp.display_write(1,"Karte nicht     ")
+		disp.display_write(2,"entfernen       ")
 		newState = "write_start_time"
 	else:
+		exp.setRedLED(True)
 		newState = "choose_route"
 	return (newState, txt)
-		
+	
 def choose_route_transition(txt):
 	# let the user select a route
 	disp.clear_display()
 	disp.display_write(0,"Kategorieauswahl")
 	# TODO: get race name and route nr from somewhere
-	disp.display_write(1,"Rennvelo")
+	disp.display_write(1,"Rennvelo        ")
 	route_nr = 65
 	while 1:
 		# check for pressed button
 		button = exp.readButton()
-		if button & BUTTON_BACK:
+		if button & portexpander.BUTTON_BACK:
 			# TODO
+			print("BACK pressed")
 			newState = "choose_route"
-		elif button & BUTTON_NEXT:
+		elif button & portexpander.BUTTON_NEXT:
 			# TODO
+			print("NEXT pressed")
 			newState = "choose_route"
-		elif button & BUTTON_OK:
+		elif button & portexpander.BUTTON_OK:
 			# set state on the card, but do not overwrite the registred flag
+			print("OK pressed")
 			if not tag_reader.setRaceKeyUL(route_nr):
 				# cancel
+				print("cancel setRaceKeyUL")
 				newState = "idle"
 				break
-			if not tag_reader.setStateUL(tag_reader.getData()&0xF0 | TAG_STATUS_STRECKENVALID):
+			if not tag_reader.setStateUL(tag_reader.getData(0)&0xF0 | rfid.TAG_STATUS_STRECKENVALID):
 				# cancel
+				print("cancel setStateUL")
 				newState = "idle"
 				break
 			# wrote succesfully
-			disp.display_write(0,"Gewaehlt:")
+			disp.display_write(0,"Gewaehlt:       ")
+			disp.display_write(2,"Karte entfernen ")
+			exp.setGreenLED(True)
+			exp.setRedLED(False)
+			print("wait_remove")
 			newState = "wait_remove"
 			break
 		# check if the rfid tag is still available
 		if not tag_reader.selectMifareUL():
+			print("idle")
 			newState = "idle"
 			break
 		# wait some time before doing it again
@@ -118,6 +138,7 @@ def choose_route_transition(txt):
 def wait_remove_transition(txt):
 	# wait for removing rfid tag
 	tag_reader.waitNoTag()
+	exp.setGreenLED(False)
 	newState = "idle"
 	return (newState, txt)
 	
@@ -129,16 +150,23 @@ def write_start_time_transition(txt):
 	if not tag_reader.getStateUL():
 		newState = "idle"
 		return (newState, txt)
-	if not tag_reader.setStateUL(tag_reader.getData()&0xF0 | TAG_STATUS_STRECKENVALID | TAG_STATUS_STARTVALID):
+	if not tag_reader.setStateUL(tag_reader.getData(0)&0xF0 | rfid.TAG_STATUS_STRECKENVALID | rfid.TAG_STATUS_STARTVALID):
 		newState = "idle"
 		return (newState, txt)
+	
+	# inform user
+	disp.display_write(0, "Zeit gespeichert")
+	disp.display_write(1, "    STARTEN     ")
+	disp.display_write(1, "                ")
+	exp.setGreenLED(True)
+	exp.setRedLED(False)
 	newState = "beep"
 	return (newState, txt)
 	
 def beep_transition(txt):
 	# beep 
 	beeper.beep(0.5)
-	newState = "idle"
+	newState = "wait_remove"
 	return(newState, txt)
 		
 def shutdown_transition(txt):
