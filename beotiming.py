@@ -5,7 +5,7 @@ import datetime
 from urllib.request import urlopen
 
 #VERSION="01.00"
-VERSION="00.90"
+VERSION="00.91"
 
 CFG_TAG_PRESENT_POLL_TIME = 0.10
 
