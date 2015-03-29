@@ -3,6 +3,7 @@
 PYTHON=/usr/bin/python3
 PROG=beotiming.py
 PROGPATH=/home/pi/beotiming/
+export TZ="/usr/share/zoneinfo/Europe/Zurich"
 
 # Note: killing bash scripts does not work with BusyBox's "killall"
 kill_first_by_name()
