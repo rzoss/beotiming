@@ -1,7 +1,7 @@
 # SL030 RFID reader driver for skpang supplied SL030 Mifare reader
 # (c) 2013-2014 Thinking Binaries Ltd, David Whale
 
-#===============================================================================
+# ===============================================================================
 # CONFIGURATION
 #
 # You can change these configuration items either by editing them in this
@@ -34,42 +34,42 @@ CFGEN_EXCEPTIONS = True
 # The function called when an error occurs in this module
 # you can replace this with a function of your own to handle errors
 def error(str):
-  print("ERROR:" + str)
-  if CFGEN_EXCEPTIONS:
-    raise ValueError(str)
+    print("ERROR:" + str)
+    if CFGEN_EXCEPTIONS:
+        raise ValueError(str)
 
 
 #===============================================================================
 # SETUP
 
 try:
-  import ci2c # python2
+    import ci2c  # python2
 except ImportError:
-  from . import ci2c # python3
+    from . import ci2c  # python3
 
 import time
 
-CMD_SELECT_MIFARE      = 0x01
-CMD_READ_DATA_PAGE_UL  = 0x10
+CMD_SELECT_MIFARE = 0x01
+CMD_READ_DATA_PAGE_UL = 0x10
 CMD_WRITE_DATA_PAGE_UL = 0x11
-CMD_GET_FIRMWARE       = 0xF0
-WR_RD_DELAY            = 0.05
+CMD_GET_FIRMWARE = 0xF0
+WR_RD_DELAY = 0.05
 
 # Gueltige Streckennr. aud der Karte
 global TAG_STATUS_STRECKENVALID
-TAG_STATUS_STRECKENVALID = (1<<0)
+TAG_STATUS_STRECKENVALID = (1 << 0)
 # Gueltige Startzeit auf der Karte
 global TAG_STATUS_STARTVALID
-TAG_STATUS_STARTVALID    = (1<<1)
+TAG_STATUS_STARTVALID = (1 << 1)
 # Gueltige Endzeit auf der Karte
 global TAG_STATUS_ENDVALID
-TAG_STATUS_ENDVALID      = (1<<2)
+TAG_STATUS_ENDVALID = (1 << 2)
 # Karte ist Manuel geloescht worden
 global TAG_STATUS_MANUALCLEARED
-TAG_STATUS_MANUALCLEARED = (1<<3)
+TAG_STATUS_MANUALCLEARED = (1 << 3)
 # Karte ist Persoenlich
 global TAG_STATUS_REGISTERED
-TAG_STATUS_REGISTERED    = (1<<4)
+TAG_STATUS_REGISTERED = (1 << 4)
 
 # Adressen in der RFID-Karte
 # Pagenummer des Status
@@ -83,7 +83,6 @@ RFID_ADR_ENDTIME = 8
 # Pagenummer der Fahrzeit
 RFID_ADR_RACETIME = 10
 
-
 ci2c.initDefaults()
 
 
@@ -91,23 +90,22 @@ ci2c.initDefaults()
 # UTILITIES
 
 def typename(type):
-  if (type == 0x01):
-    return "mifare 1k, 4byte UID"
-  elif (type == 0x02):
-    return "mifare 1k, 7byte UID"
-  elif (type == 0x03):
-    return "mifare UltraLight, 7 byte UID"
-  elif (type == 0x04):
-    return "mifare 4k, 4 byte UID"
-  elif (type == 0x05):
-    return "mifare 4k, 7 byte UID"
-  elif (type == 0x06):
-    return "mifare DesFilre, 7 byte UID"
-  elif (type == 0x0A):
-    return "other"
-  else:
-    return "unknown:" + str(type)
-
+    if (type == 0x01):
+        return "mifare 1k, 4byte UID"
+    elif (type == 0x02):
+        return "mifare 1k, 7byte UID"
+    elif (type == 0x03):
+        return "mifare UltraLight, 7 byte UID"
+    elif (type == 0x04):
+        return "mifare 4k, 4 byte UID"
+    elif (type == 0x05):
+        return "mifare 4k, 7 byte UID"
+    elif (type == 0x06):
+        return "mifare DesFilre, 7 byte UID"
+    elif (type == 0x0A):
+        return "other"
+    else:
+        return "unknown:" + str(type)
 
 
 #===============================================================================
@@ -123,220 +121,223 @@ def typename(type):
 # implementation or to share an application wide GPIO object.
 
 class SL030:
-	def __init__(self, gpio=None):
-		self.type = None
-		self.uid  = None
-		self.GPIO = gpio
+    def __init__(self, gpio=None):
+        self.type = None
+        self.uid = None
+        self.GPIO = gpio
 
-		if CFGEN_GPIO:
-			if gpio == None:
-				# use default RPi.GPIO, if nothing else provided
-				import RPi.GPIO as GPIO
-				GPIO.setmode(GPIO.BCM)
-				self.GPIO = GPIO
-			self.GPIO.setup(CFG_TAG_DETECT, GPIO.IN)
+        if CFGEN_GPIO:
+            if gpio == None:
+                # use default RPi.GPIO, if nothing else provided
+                import RPi.GPIO as GPIO
 
-	def tagIsPresent(self):
-		if CFGEN_GPIO:
-			return self.GPIO.input(CFG_TAG_DETECT) == False
-		else:
-			return self.selectMifareUL()
+                GPIO.setmode(GPIO.BCM)
+                self.GPIO = GPIO
+            self.GPIO.setup(CFG_TAG_DETECT, GPIO.IN)
 
-	def waitTag(self):
-		while not self.tagIsPresent():
-			time.sleep(CFG_TAG_PRESENT_POLL_TIME)
+    def tagIsPresent(self):
+        if CFGEN_GPIO:
+            return self.GPIO.input(CFG_TAG_DETECT) == False
+        else:
+            return self.selectMifareUL()
 
-	def waitNoTag(self):
-		while self.tagIsPresent():
-			time.sleep(CFG_TAG_ABSENT_POLL_TIME)
+    def waitTag(self):
+        while not self.tagIsPresent():
+            time.sleep(CFG_TAG_PRESENT_POLL_TIME)
 
-	def validateVer(self, ver):
-		first = ver[0]
-		if first != ord('S'):
-			if first == ord('S') + 0x80:
-				error("validateVer:Corruption from device detected")
-			else:
-				error("validateVer:unrecognised device")
+    def waitNoTag(self):
+        while self.tagIsPresent():
+            time.sleep(CFG_TAG_ABSENT_POLL_TIME)
 
-	def tostr(self, ver):
-		verstr = ""
-		for b in ver:
-			verstr += chr(b)
-		return verstr
+    def validateVer(self, ver):
+        first = ver[0]
+        if first != ord('S'):
+            if first == ord('S') + 0x80:
+                error("validateVer:Corruption from device detected")
+            else:
+                error("validateVer:unrecognised device")
 
-	def getFirmware(self):
-		# Tx ADDRESS, 1, CMD_GET_FIRMWARE
-		result = ci2c.write(CFG_ADDRESS, [1, CMD_GET_FIRMWARE])
-		time.sleep(WR_RD_DELAY)
-		if result != 0:
-			error("getFirmware:Cannot read, result=" + str(result))
-		return None
+    def tostr(self, ver):
+        verstr = ""
+        for b in ver:
+            verstr += chr(b)
+        return verstr
 
-		result, buf = ci2c.read(CFG_ADDRESS, 15)
-		if result != 0:
-			error("getFirmware:Cannot write, result=" + str(result))
-		return None
-		ver = buf[3:]
-		self.validateVer(ver)		
-		return self.tostr(ver)
+    def getFirmware(self):
+        # Tx ADDRESS, 1, CMD_GET_FIRMWARE
+        result = ci2c.write(CFG_ADDRESS, [1, CMD_GET_FIRMWARE])
+        time.sleep(WR_RD_DELAY)
+        if result != 0:
+            error("getFirmware:Cannot read, result=" + str(result))
+        return None
 
-	def selectMifareUL(self):
-		length = 0
-		while length == 0:
-			result = ci2c.write(CFG_ADDRESS, [1, CMD_SELECT_MIFARE])
-			time.sleep(WR_RD_DELAY)
-			#if result != 0:
-			#  error("selectMifareUL:Cannot read, result=" + str(result))
-			#  return False
-			
-			result, buf = ci2c.read(CFG_ADDRESS, 15)
-			#if result != 0:
-			#  error("selectMifareUL:Cannot write, result=" + str(result))
-			#  return False
-			
-			length = buf[0]
-			cmd    = buf[1]
-			status = buf[2] 
+        result, buf = ci2c.read(CFG_ADDRESS, 15)
+        if result != 0:
+            error("getFirmware:Cannot write, result=" + str(result))
+        return None
+        ver = buf[3:]
+        self.validateVer(ver)
+        return self.tostr(ver)
 
-		#print("length: " + str(length) + " cmd: " + str(cmd) + " status: " + str(status))
+    def selectMifareUL(self):
+        length = 0
+        while length == 0:
+            result = ci2c.write(CFG_ADDRESS, [1, CMD_SELECT_MIFARE])
+            time.sleep(WR_RD_DELAY)
+            #if result != 0:
+            #  error("selectMifareUL:Cannot read, result=" + str(result))
+            #  return False
 
-		if (status != 0x00):
-			self.uid  = None
-			self.type = None
-			return False 
+            result, buf = ci2c.read(CFG_ADDRESS, 15)
+            #if result != 0:
+            #  error("selectMifareUL:Cannot write, result=" + str(result))
+            #  return False
 
-		# uid length varies on type, and type is after uuid
-		uid       = buf[3:length]
-		type      = buf[length]
-		self.type = type
-		self.uid  = uid
-		
-		#print("type: " + str(type))
-		
-		if (type != 0x03):
-			self.uid  = None
-			self.type = None
-			return False 
-	  
-		# only return true if Mifare Ultralight
-		return True
+            length = buf[0]
+            cmd = buf[1]
+            status = buf[2]
 
-	def readDataPageUL(self, page):
-		length = 0
-		while length == 0:
-			result = ci2c.write(CFG_ADDRESS, [2, CMD_READ_DATA_PAGE_UL, page])
-			time.sleep(WR_RD_DELAY)
-			#if result != 0:
-			#  error("selectMifareUL:Cannot read, result=" + str(result))
-			#  return False
-		
-			result, buf = ci2c.read(CFG_ADDRESS, 7)
-			#if result != 0:
-			#  error("selectMifareUL:Cannot write, result=" + str(result))
-			#  return False
-		
-			length = buf[0]
-			cmd    = buf[1]
-			status = buf[2] 
-	
-		#print("length: " + str(length) + " cmd: " + str(cmd) + " status: " + str(status))
-		
-		if (status != 0x00):
-			self.data  = None
-			return False
+        #print("length: " + str(length) + " cmd: " + str(cmd) + " status: " + str(status))
 
-		# get the data
-		self.data      = buf[3:length+1]
+        if (status != 0x00):
+            self.uid = None
+            self.type = None
+            return False
 
-		# only return true if Mifare Ultralight
-		return True
+        # uid length varies on type, and type is after uuid
+        uid = buf[3:length]
+        type = buf[length]
+        self.type = type
+        self.uid = uid
 
-	def writeDataPageUL(self, page, data):
-		length = 0
-		while length == 0:
-			result = ci2c.write(CFG_ADDRESS, [2, CMD_WRITE_DATA_PAGE_UL, page, data[0], data[1], data[2], data[3]])
-			time.sleep(WR_RD_DELAY)
-			#if result != 0:
-			#  error("selectMifareUL:Cannot read, result=" + str(result))
-			#  return False
-			
-			result, buf = ci2c.read(CFG_ADDRESS, 7)
-			#if result != 0:
-			#  error("selectMifareUL:Cannot write, result=" + str(result))
-			#  return False
-			
-			length = buf[0]
-			cmd    = buf[1]
-			status = buf[2] 
-	
-		if (status != 0x00):
-			return False
+        #print("type: " + str(type))
 
-		# get the data
-		if buf[3:length+1] != data:
-			return False
-		else:
-			# only return true if the written data could be read back
-			return True
+        if (type != 0x03):
+            self.uid = None
+            self.type = None
+            return False
 
-	def getStateUL(self):
-		if not self.readDataPageUL(RFID_ADR_STATUS):
-			return False
-		else:
-			return True
-        
-	def setStateUL(self, state):
-		if not self.writeDataPageUL(RFID_ADR_STATUS, [state, 0, 0, 0]):
-			return False
-		else:
-			return True
+        # only return true if Mifare Ultralight
+        return True
 
-	def setRaceKeyUL(self, raceKey):
-		if not self.writeDataPageUL(RFID_ADR_STRECKENKEY, [raceKey, 0, 0, 0]):
-			return False
-		else:
-			return True
-  
-	def setStartTimeUL(self, datetime):
-		if not self.writeDataPageUL(RFID_ADR_STARTTIME, [datetime.year & 0x00FF, datetime.year >> 8, datetime.month, datetime.day]):
-			return False
-		if not self.writeDataPageUL(RFID_ADR_STARTTIME+1, [datetime.hour, datetime.minute, datetime.second, 0]):
-			return False
-		else:
-			return True
+    def readDataPageUL(self, page):
+        length = 0
+        while length == 0:
+            result = ci2c.write(CFG_ADDRESS, [2, CMD_READ_DATA_PAGE_UL, page])
+            time.sleep(WR_RD_DELAY)
+            #if result != 0:
+            #  error("selectMifareUL:Cannot read, result=" + str(result))
+            #  return False
 
-	def setEndTimeUL(self, datetime):
-		if not self.writeDataPageUL(RFID_ADR_ENDTIME, [datetime.year & 0x00FF, datetime.year >> 8, datetime.month, datetime.day]):
-			return False
-		if not self.writeDataPageUL(RFID_ADR_ENDTIME+1, [datetime.hour, datetime.minute, datetime.second, 0]):
-			return False
-		else:
-			return True
+            result, buf = ci2c.read(CFG_ADDRESS, 7)
+            #if result != 0:
+            #  error("selectMifareUL:Cannot write, result=" + str(result))
+            #  return False
 
-	def setRaceTimeUL(self, hours, minutes, seconds):
-		if not self.writeDataPageUL(RFID_ADR_RACETIME, [0, hours, minutes, seconds]):
-			return False
-		else:
-			return True  
+            length = buf[0]
+            cmd = buf[1]
+            status = buf[2]
 
-	def getUID(self):
-		return self.uid
+        #print("length: " + str(length) + " cmd: " + str(cmd) + " status: " + str(status))
 
-	def getUniqueId(self):
-		uidstr = ""
-		for b in self.uid:
-			uidstr += "%02X" % b
-		return uidstr
+        if (status != 0x00):
+            self.data = None
+            return False
 
-	def getType(self):
-		return self.type
+        # get the data
+        self.data = buf[3:length + 1]
 
-	def getTypeName(self):
-		return typename(self.getType())
+        # only return true if Mifare Ultralight
+        return True
 
-	def getData(self, byte):
-		return self.data[byte] 
+    def writeDataPageUL(self, page, data):
+        length = 0
+        while length == 0:
+            result = ci2c.write(CFG_ADDRESS, [2, CMD_WRITE_DATA_PAGE_UL, page, data[0], data[1], data[2], data[3]])
+            time.sleep(WR_RD_DELAY)
+            #if result != 0:
+            #  error("selectMifareUL:Cannot read, result=" + str(result))
+            #  return False
 
-	def getDataString(self):
-		return ":".join("{:02x}".format(int(c)) for c in self.data)
+            result, buf = ci2c.read(CFG_ADDRESS, 7)
+            #if result != 0:
+            #  error("selectMifareUL:Cannot write, result=" + str(result))
+            #  return False
+
+            length = buf[0]
+            cmd = buf[1]
+            status = buf[2]
+
+        if (status != 0x00):
+            return False
+
+        # get the data
+        if buf[3:length + 1] != data:
+            return False
+        else:
+            # only return true if the written data could be read back
+            return True
+
+    def getStateUL(self):
+        if not self.readDataPageUL(RFID_ADR_STATUS):
+            return False
+        else:
+            return True
+
+    def setStateUL(self, state):
+        if not self.writeDataPageUL(RFID_ADR_STATUS, [state, 0, 0, 0]):
+            return False
+        else:
+            return True
+
+    def setRaceKeyUL(self, raceKey):
+        if not self.writeDataPageUL(RFID_ADR_STRECKENKEY, [raceKey, 0, 0, 0]):
+            return False
+        else:
+            return True
+
+    def setStartTimeUL(self, datetime):
+        if not self.writeDataPageUL(RFID_ADR_STARTTIME,
+                                    [datetime.year & 0x00FF, datetime.year >> 8, datetime.month, datetime.day]):
+            return False
+        if not self.writeDataPageUL(RFID_ADR_STARTTIME + 1, [datetime.hour, datetime.minute, datetime.second, 0]):
+            return False
+        else:
+            return True
+
+    def setEndTimeUL(self, datetime):
+        if not self.writeDataPageUL(RFID_ADR_ENDTIME,
+                                    [datetime.year & 0x00FF, datetime.year >> 8, datetime.month, datetime.day]):
+            return False
+        if not self.writeDataPageUL(RFID_ADR_ENDTIME + 1, [datetime.hour, datetime.minute, datetime.second, 0]):
+            return False
+        else:
+            return True
+
+    def setRaceTimeUL(self, hours, minutes, seconds):
+        if not self.writeDataPageUL(RFID_ADR_RACETIME, [0, hours, minutes, seconds]):
+            return False
+        else:
+            return True
+
+    def getUID(self):
+        return self.uid
+
+    def getUniqueId(self):
+        uidstr = ""
+        for b in self.uid:
+            uidstr += "%02X" % b
+        return uidstr
+
+    def getType(self):
+        return self.type
+
+    def getTypeName(self):
+        return typename(self.getType())
+
+    def getData(self, byte):
+        return self.data[byte]
+
+    def getDataString(self):
+        return ":".join("{:02x}".format(int(c)) for c in self.data)
 
