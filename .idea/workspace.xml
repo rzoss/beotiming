@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2109f30f-256d-486b-bb29-51a958cb572c" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/beotiming.py" afterPath="$PROJECT_DIR$/beotiming.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hardware/rfid.py" afterPath="$PROJECT_DIR$/hardware/rfid.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/helper/beoconfig.py" afterPath="$PROJECT_DIR$/helper/beoconfig.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hardware/display.py" afterPath="$PROJECT_DIR$/hardware/display.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/hardware/summer.py" afterPath="$PROJECT_DIR$/hardware/summer.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="beotiming.iws" />
@@ -40,26 +41,6 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="portexpander.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/hardware/portexpander.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="249" max-vertical-offset="2130">
-              <caret line="34" column="0" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="rfid.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/hardware/rfid.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="1839" max-vertical-offset="5235">
-              <caret line="141" column="6" selection-start-line="141" selection-start-column="6" selection-end-line="141" selection-end-column="6" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
     </leaf>
   </component>
   <component name="Git.Settings">
@@ -71,6 +52,9 @@
         <option value="$PROJECT_DIR$/hardware/portexpander.py" />
         <option value="$PROJECT_DIR$/beotiming.py" />
         <option value="$PROJECT_DIR$/hardware/rfid.py" />
+        <option value="$PROJECT_DIR$/helper/beoconfig.py" />
+        <option value="$PROJECT_DIR$/hardware/display.py" />
+        <option value="$PROJECT_DIR$/hardware/summer.py" />
       </list>
     </option>
   </component>
@@ -131,7 +115,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="old" />
+              <option name="myItemId" value="hardware" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -287,7 +271,13 @@
       <option name="project" value="LOCAL" />
       <updated>1427985644976</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="fixed some logging messages / reformat files">
+      <created>1427986606748</created>
+      <option name="number" value="00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1427986606748</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -332,21 +322,14 @@
       <TodoPanelSettings />
     </option>
     <MESSAGE value="old is now a module" />
-    <option name="LAST_COMMIT_MESSAGE" value="old is now a module" />
+    <MESSAGE value="fixed some logging messages / reformat files" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed some logging messages / reformat files" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/hardware/display.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.04636785" vertical-offset="0" max-vertical-offset="2055">
-          <caret line="4" column="11" selection-start-line="4" selection-start-column="11" selection-end-line="4" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/hardware/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="647">
@@ -355,19 +338,65 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/hardware/rfid.py">
+    <entry file="file://$PROJECT_DIR$/old/Beep.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1839" max-vertical-offset="5235">
-          <caret line="141" column="6" selection-start-line="141" selection-start-column="6" selection-end-line="141" selection-end-column="6" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="621">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/helper/beoconfig.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.29605263" vertical-offset="0" max-vertical-offset="930">
+          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/helper/statemachine.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2415459" vertical-offset="0" max-vertical-offset="621">
+          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hardware/display.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.19162641" vertical-offset="31" max-vertical-offset="2130">
+          <caret line="10" column="4" selection-start-line="10" selection-start-column="4" selection-end-line="10" selection-end-column="4" />
+          <folding>
+            <element signature="e#90#101#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/hardware/portexpander.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="249" max-vertical-offset="2130">
-          <caret line="34" column="0" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.37198067" vertical-offset="249" max-vertical-offset="2130">
+          <caret line="32" column="5" selection-start-line="32" selection-start-column="5" selection-end-line="32" selection-end-column="5" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hardware/rfid.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.20289855" vertical-offset="1839" max-vertical-offset="5235">
+          <caret line="131" column="8" selection-start-line="131" selection-start-column="8" selection-end-line="131" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/hardware/summer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.2415459" vertical-offset="0" max-vertical-offset="621">
+          <caret line="10" column="1" selection-start-line="10" selection-start-column="1" selection-end-line="10" selection-end-column="1" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
