@@ -1,8 +1,10 @@
 #===============================================================================
 # SETUP
+import time
+
 import spidev
 import RPi.GPIO as GPIO
-import time
+
 
 class dogm:
 	#Display initialisieren

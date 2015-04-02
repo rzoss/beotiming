@@ -47,7 +47,7 @@ try:
 except ImportError:
   from . import ci2c # python3
 
-import datetime, time
+import time
 
 CMD_SELECT_MIFARE      = 0x01
 CMD_READ_DATA_PAGE_UL  = 0x10
