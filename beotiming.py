@@ -10,6 +10,7 @@ import logging
 VERSION = "00.91"
 
 CFG_TAG_PRESENT_POLL_TIME = 0.10
+CFG_BUTTON_POLL_TIME = 0.01
 
 old_timestring = ""
 
@@ -19,7 +20,7 @@ exp = portexpander.PCF8574()
 beeper = summer.summer()
 tag_reader = rfid.SL030()
 cfg = beoconfig.BeoConfig()
-logging.basicConfig(filename='/var/log/beotiming.log', level=logging.INFO, format='%(asctime)s: %(message)s')
+logging.basicConfig(filename='/var/log/beotiming.log', level=logging.INFO, format='%(asctime)s | %(levelname)s: %(message)s')
 
 
 def internet_on():
@@ -137,15 +138,13 @@ def choose_route_transition(txt):
         if button & portexpander.BUTTON_BACK:
             index = (index - 1)%routecount
             logging.debug("BACK pressed | index: " + str(index) + ' | Nr: ' + route[0][0] + ' | Typ: ' + route[0][1])
-            disp.display_write(1, route[index][1] + "       ")
-            disp.display_write(2, cfg.getRouteName())
+            disp.display_write(1, route[index][1])
             route_nr = int(route[index][0])
             newState = "choose_route"
         elif button & portexpander.BUTTON_NEXT:
             index = (index + 1)%routecount
             logging.debug("NEXT pressed | index: " + str(index) + ' | Nr: ' + route[0][0] + ' | Typ: ' + route[0][1])
             disp.display_write(1, route[index][1])
-            disp.display_write(2, cfg.getRouteName())
             route_nr = int(route[index][0])
             newState = "choose_route"
         elif button & portexpander.BUTTON_OK:
@@ -164,10 +163,11 @@ def choose_route_transition(txt):
             # wrote succesfully
             logging.info("wrote route successfull: " + tag_reader.getUniqueId() + " | route nr: " + str(route_nr) + " | route type: " + cfg.getRouteType(route_nr))
             disp.display_write(0, "Gewaehlt:")
+            disp.display_write(1, route[index][1])
             disp.display_write(2, "Karte entfernen")
             exp.setGreenLED(True)
             exp.setRedLED(False)
-            logging.debug('wrote route successfull -> newState: wait_remove')
+            logging.debug('newState: wait_remove')
             newState = "wait_remove"
             break
         # check if the rfid tag is still available
@@ -176,7 +176,7 @@ def choose_route_transition(txt):
             newState = "idle"
             break
         # wait some time before doing it again
-        time.sleep(CFG_TAG_PRESENT_POLL_TIME)
+        time.sleep(CFG_BUTTON_POLL_TIME)
     return (newState, txt)
 
 
@@ -199,8 +199,7 @@ def write_start_time_transition(txt):
         logging.warning('error in getStateUL -> newState: idle')
         newState = "idle"
         return (newState, txt)
-    if not tag_reader.setStateUL(tag_reader.getData(
-            0) & 0xF0 | rfid.TAG_STATUS_STRECKENVALID | rfid.TAG_STATUS_STARTVALID):
+    if not tag_reader.setStateUL(tag_reader.getData(0) & 0xF0 | rfid.TAG_STATUS_STRECKENVALID | rfid.TAG_STATUS_STARTVALID):
         logging.warning('error in setStateUL -> newState: idle')
         newState = "idle"
         return (newState, txt)
