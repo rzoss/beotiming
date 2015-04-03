@@ -296,6 +296,12 @@ class SL030:
         else:
             return True
 
+    def getRaceKeyUL(self):
+        if not self.readDataPageUL(RFID_ADR_STRECKENKEY):
+            return False
+        else:
+            return True
+
     def setStartTimeUL(self, datetime):
         if not self.writeDataPageUL(RFID_ADR_STARTTIME,
                                     [datetime.year & 0x00FF, datetime.year >> 8, datetime.month, datetime.day]):
