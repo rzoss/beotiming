@@ -17,6 +17,7 @@ start()
 	cd $PROGPATH
 	while [ 1 ]
 	do
+		echo "********** start beotiming.py **********" >> /var/log/beotiming.log
 		$PYTHON $PROG
 		sleep 1
 	done
