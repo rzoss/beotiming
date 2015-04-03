@@ -80,10 +80,13 @@ class dogm:
     # Auf Display schreiben
     # Line = Zeile 1, 2 oder 3
     # Text = anzuzeigender Inhalt
-    def display_write(self, zeile, text):
+    def display_write(self, zeile, text, centered=False):
         self.zeile = zeile
         # fill to 16 char
-        self.text = '{:<16}'.format(text)
+        if centered:
+            self.text = '{:^16}'.format(text)
+        else:
+            self.text = '{:<16}'.format(text)
         # Wandelt string zu int list um
         new_text = [ord(c) for c in self.text]
         # Cursor Position einstellen
