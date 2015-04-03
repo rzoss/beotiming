@@ -23,9 +23,15 @@ class BeoConfig:
 
         # Route
         self.routeName = config['Route']['RouteName']
-        self.route = [[config['Route']['RouteKey1'], config['Route']['RouteType1']],
-                      [config['Route']['RouteKey2'], config['Route']['RouteType2']],
-                      [config['Route']['RouteKey3'], config['Route']['RouteType3']]]
+
+        self.route = [[config['Route']['RouteKey1'], config['Route']['RouteType1']],[config['Route']['RouteKey2'], config['Route']['RouteType2']],[config['Route']['RouteKey3'], config['Route']['RouteType3']]]
+        if self.route[1][0] == "0":
+            self.routecount = 1
+        elif self.route[2][0] == "0":
+            self.routecount = 2
+        else:
+            self.routecount = 3
+
         self.timestamp = datetime.datetime.now()
 
     def updateConfig(self):
@@ -47,7 +53,7 @@ class BeoConfig:
         return (self.FTPServer, self.FTPUser, self.FTPPwd)
 
     def getRoute(self):
-        return (self.route)
+        return (self.route, self.routecount)
 
     def getRouteName(self):
         return (self.routeName)
