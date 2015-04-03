@@ -82,8 +82,10 @@ class dogm:
     # Text = anzuzeigender Inhalt
     def display_write(self, zeile, text):
         self.zeile = zeile
+        # fill to 16 char
+        self.text = '{:<16}'.format(text)
         # Wandelt string zu int list um
-        new_text = [ord(c) for c in text]
+        new_text = [ord(c) for c in self.text]
         # Cursor Position einstellen
         self.set_cursor()
         self.spi.open(0, 1)
