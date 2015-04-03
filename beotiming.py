@@ -126,18 +126,28 @@ def choose_route_transition(txt):
     disp.clear_display()
     disp.display_write(0, "Kategorieauswahl")
     # TODO: get race name and route nr from somewhere
-    disp.display_write(1, "Rennvelo        ")
-    route_nr = 65
+    route, routecount = cfg.getRoute()
+    logging.debug('Nr: ' + route[0][0] + ' / Typ: ' + route[0][1])
+    index = 0
+    disp.display_write(1, route[index][1])
+    disp.display_write(2, cfg.getRouteName())
+    route_nr = int(route[index][0])
     while 1:
         # check for pressed button
         button = exp.readButton()
         if button & portexpander.BUTTON_BACK:
-            # TODO
-            logging.debug('BACK pressed')
+            index = (index - 1)%routecount
+            logging.debug("BACK pressed | index: " + str(index) + ' | Nr: ' + route[0][0] + ' | Typ: ' + route[0][1])
+            disp.display_write(1, route[index][1] + "       ")
+            disp.display_write(2, cfg.getRouteName())
+            route_nr = int(route[index][0])
             newState = "choose_route"
         elif button & portexpander.BUTTON_NEXT:
-            # TODO
-            logging.debug("NEXT pressed")
+            index = (index + 1)%routecount
+            logging.debug("NEXT pressed | index: " + str(index) + ' | Nr: ' + route[0][0] + ' | Typ: ' + route[0][1])
+            disp.display_write(1, route[index][1])
+            disp.display_write(2, cfg.getRouteName())
+            route_nr = int(route[index][0])
             newState = "choose_route"
         elif button & portexpander.BUTTON_OK:
             # set state on the card, but do not overwrite the registred flag
@@ -153,22 +163,21 @@ def choose_route_transition(txt):
                 newState = "idle"
                 break
             # wrote succesfully
+            logging.info("wrote route successfull: " + tag_reader.getUniqueId() + " | route nr: " + str(route_nr) + " | route type: " + cfg.getRouteType(route_nr))
             disp.display_write(0, "Gewaehlt:       ")
             disp.display_write(2, "Karte entfernen ")
             exp.setGreenLED(True)
             exp.setRedLED(False)
-            print("wait_remove")
             logging.debug('wrote route successfull -> newState: wait_remove')
             newState = "wait_remove"
             break
         # check if the rfid tag is still available
         if not tag_reader.selectMifareUL():
-            print("idle")
             logging.debug('newState: idle')
             newState = "idle"
             break
         # wait some time before doing it again
-        time.sleep(0.01)
+        time.sleep(CFG_TAG_PRESENT_POLL_TIME)
     return (newState, txt)
 
 
@@ -184,22 +193,31 @@ def wait_remove_transition(txt):
 def write_start_time_transition(txt):
     # write start time to the rfid tag and update states
     if not tag_reader.setStartTimeUL(datetime.datetime.now()):
+        logging.warning('error in setStartTimeUL -> newState: idle')
         newState = "idle"
         return (newState, txt)
     if not tag_reader.getStateUL():
+        logging.warning('error in getStateUL -> newState: idle')
         newState = "idle"
         return (newState, txt)
     if not tag_reader.setStateUL(tag_reader.getData(
             0) & 0xF0 | rfid.TAG_STATUS_STRECKENVALID | rfid.TAG_STATUS_STARTVALID):
+        logging.warning('error in setStateUL -> newState: idle')
         newState = "idle"
         return (newState, txt)
-
+    if not tag_reader.getRaceKeyUL():
+        logging.warning('error in getRaceKeyUL -> newState: idle')
+        newState = "idle"
+        return (newState, txt)
+    route_nr = tag_reader.getData(0)
+    logging.info("wrote start time successfull: " + tag_reader.getUniqueId() + " | route nr: " + str(route_nr) + " | route type: " + cfg.getRouteType(route_nr) + " | start time: " + datetime.datetime.now().isoformat())
     # inform user
     disp.display_write(0, "Zeit gespeichert")
     disp.display_write(1, "    STARTEN     ")
-    disp.display_write(2, "                ")
+    disp.display_write(2, cfg.getRouteType(route_nr))
     exp.setGreenLED(True)
     exp.setRedLED(False)
+    logging.debug('newState: beep')
     newState = "beep"
     return (newState, txt)
 
@@ -207,6 +225,7 @@ def write_start_time_transition(txt):
 def beep_transition(txt):
     # beep
     beeper.beep(0.5)
+    logging.debug('newState: wait_remove')
     newState = "wait_remove"
     return (newState, txt)
 
