@@ -51,21 +51,20 @@ def init_transition(txt):
         disp.display_write(2, "retry #" + i)
         logging.info('Connection failed. Retry #' + i)
         time.sleep(1)
-    disp.display_write(1, "successfull     ")
+    disp.display_write(1, "successfull")
     logging.info('Connection test successfull. Startup finished.')
     time.sleep(1)
     disp.display_write(0, "Startup finished")
+    disp.display_write(1, "The type is")
     if cfg.isStart():
         logging.info('This is a Start-Station.')
-        disp.display_write(1, "The type is     ")
-        disp.display_write(2, "Start-Station   ")
+        disp.display_write(2, "Start-Station")
     else:
         logging.info('This is a Finish-Station.')
-        disp.display_write(1, "The type is     ")
-        disp.display_write(2, "Finish-Station   ")
+        disp.display_write(2, "Finish-Station")
     time.sleep(2)
     logging.info('The route is: ' + cfg.getRouteName())
-    disp.display_write(1, "The route is     ")
+    disp.display_write(1, "The route is")
     disp.display_write(2, cfg.getRouteName())
     time.sleep(2)
     disp.display_backlight(False)
@@ -82,9 +81,9 @@ def idle_transition(txt):
     t = datetime.datetime.now()
     timestring = t.strftime("%H:%M:%S")
     if not timestring == old_timestring:
-        disp.display_write(0, "   " + t.strftime("%d.%m.%Y") + "   ")
-        disp.display_write(1, "    " + t.strftime("%H:%M:%S") + "    ")
-        disp.display_write(2, " beo-timing.ch  ")
+        disp.display_write(0, t.strftime("%d.%m.%Y"), True)
+        disp.display_write(1, t.strftime("%H:%M:%S"), True)
+        disp.display_write(2, "beo-timing.ch", True)
     old_timestring = timestring
     newState = "check_card"
     return (newState, txt)
@@ -110,8 +109,8 @@ def read_card_transition(txt):
                 tag_reader.getData(0) & rfid.TAG_STATUS_ENDVALID) and not (
                 tag_reader.getData(0) & rfid.TAG_STATUS_MANUALCLEARED):
         exp.setRedLED(True)
-        disp.display_write(1, "Karte nicht     ")
-        disp.display_write(2, "entfernen       ")
+        disp.display_write(1, "Karte nicht")
+        disp.display_write(2, "entfernen")
         logging.debug('newState: write_start_time')
         newState = "write_start_time"
     else:
@@ -164,8 +163,8 @@ def choose_route_transition(txt):
                 break
             # wrote succesfully
             logging.info("wrote route successfull: " + tag_reader.getUniqueId() + " | route nr: " + str(route_nr) + " | route type: " + cfg.getRouteType(route_nr))
-            disp.display_write(0, "Gewaehlt:       ")
-            disp.display_write(2, "Karte entfernen ")
+            disp.display_write(0, "Gewaehlt:")
+            disp.display_write(2, "Karte entfernen")
             exp.setGreenLED(True)
             exp.setRedLED(False)
             logging.debug('wrote route successfull -> newState: wait_remove')
@@ -213,8 +212,8 @@ def write_start_time_transition(txt):
     logging.info("wrote start time successfull: " + tag_reader.getUniqueId() + " | route nr: " + str(route_nr) + " | route type: " + cfg.getRouteType(route_nr) + " | start time: " + datetime.datetime.now().isoformat())
     # inform user
     disp.display_write(0, "Zeit gespeichert")
-    disp.display_write(1, "    STARTEN     ")
-    disp.display_write(2, cfg.getRouteType(route_nr))
+    disp.display_write(1, "STARTEN", True)
+    disp.display_write(2, cfg.getRouteType(route_nr), True)
     exp.setGreenLED(True)
     exp.setRedLED(False)
     logging.debug('newState: beep')
