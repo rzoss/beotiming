@@ -57,6 +57,12 @@ class BeoConfig:
 
     def getRouteName(self):
         return (self.routeName)
+
+    def getRouteType(self, route_nr):
+        for x in range(0, self.routecount):
+            if self.route[x][0] == str(route_nr):
+                return(self.route[x][1])
+        return("unbekannt")
 		
 		
 		
