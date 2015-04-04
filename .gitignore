@@ -1,0 +1,2 @@
+# do not track Python's compilation files
+*.pyc
