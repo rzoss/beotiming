@@ -342,7 +342,7 @@ class SL030:
         return typename(self.getType())
 
     def getData(self, byte):
-        return self.data[int(byte)]
+        return self.data[byte]
 
     def getDataString(self):
         return ":".join("{:02x}".format(int(c)) for c in self.data)
