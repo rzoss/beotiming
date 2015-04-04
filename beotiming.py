@@ -104,20 +104,24 @@ def check_card_transition(txt):
 
 def read_card_transition(txt):
     # check if there was already a race writen to the card
-    tag_reader.getStateUL()
-    if (tag_reader.getData(0) & rfid.TAG_STATUS_STRECKENVALID) and not (
-                tag_reader.getData(0) & rfid.TAG_STATUS_STARTVALID) and not (
-                tag_reader.getData(0) & rfid.TAG_STATUS_ENDVALID) and not (
-                tag_reader.getData(0) & rfid.TAG_STATUS_MANUALCLEARED):
-        exp.setRedLED(True)
-        disp.display_write(1, "Karte nicht")
-        disp.display_write(2, "entfernen")
-        logging.debug('newState: write_start_time')
-        newState = "write_start_time"
+    if not tag_reader.getStateUL():
+        # cancel
+        logging.warning('error in getStateUL -> newState: idle')
+        newState = "idle"
     else:
-        exp.setRedLED(True)
-        logging.debug('newState: choose_route')
-        newState = "choose_route"
+        if (tag_reader.getData(0) & rfid.TAG_STATUS_STRECKENVALID) and not (
+                    tag_reader.getData(0) & rfid.TAG_STATUS_STARTVALID) and not (
+                    tag_reader.getData(0) & rfid.TAG_STATUS_ENDVALID) and not (
+                    tag_reader.getData(0) & rfid.TAG_STATUS_MANUALCLEARED):
+            exp.setRedLED(True)
+            disp.display_write(1, "Karte nicht")
+            disp.display_write(2, "entfernen")
+            logging.debug('newState: write_start_time')
+            newState = "write_start_time"
+        else:
+            exp.setRedLED(True)
+            logging.debug('newState: choose_route')
+            newState = "choose_route"
     return (newState, txt)
 
 
@@ -176,7 +180,7 @@ def choose_route_transition(txt):
             newState = "idle"
             break
         # wait some time before doing it again
-        time.sleep(CFG_BUTTON_POLL_TIME)
+        #time.sleep(CFG_BUTTON_POLL_TIME)
     return (newState, txt)
 
 
