@@ -1,13 +1,13 @@
+import urllib.request
 from helper import statemachine, beoconfig
 from hardware import display, rfid, portexpander, summer
 import time
 import datetime
-from urllib.request import urlopen
 import logging
 
 
 # VERSION="01.00"
-VERSION = "01.00"
+VERSION = "01.01"
 
 CFG_TAG_PRESENT_POLL_TIME = 0.10
 CFG_BUTTON_POLL_TIME = 0.01
@@ -22,19 +22,15 @@ tag_reader = rfid.SL030()
 cfg = beoconfig.BeoConfig()
 logging.basicConfig(filename='/var/log/beotiming.log', level=logging.INFO, format='%(asctime)s | %(levelname)s: %(message)s')
 
-
-def internet_on():
+def check_connectivity(reference):
     try:
-        response = urlopen('http://www.google.ch', timeout=1)
+        urllib.request.urlopen(reference, timeout=1)
         return True
-    except URLError as err:
-        pass
-    return False
-
+    except urllib.request.URLError:
+        return False
 
 def init_transition(txt):
     # initialisation
-
     disp.display_backlight(True)
     logging.info('Startup | Version ' + VERSION)
     disp.display_write(0, "Startup ...")
@@ -45,12 +41,12 @@ def init_transition(txt):
     disp.display_write(2, "check connection")
     time.sleep(1)
     i = 0
-    while not internet_on():
+    while not check_connectivity('http://www.beo-timing.ch'):
         # retry every second
         disp.display_write(1, "conn. failed")
         i += 1
-        disp.display_write(2, "retry #" + i)
-        logging.info('Connection failed. Retry #' + i)
+        disp.display_write(2, "retry #" + str(i))
+        logging.info('Connection failed. Retry #' + str(i))
         time.sleep(1)
     disp.display_write(1, "successfull")
     logging.info('Connection test successfull. Startup finished.')
@@ -92,6 +88,8 @@ def idle_transition(txt):
 
 def check_card_transition(txt):
     # check if a tag is present
+    # the timeout seems to be needed if it's cold (?)
+    time.sleep(CFG_BUTTON_POLL_TIME)
     if tag_reader.selectMifareUL():
         disp.display_backlight(True)
         exp.setRedLED(True)
