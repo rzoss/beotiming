@@ -4,10 +4,13 @@ This project adheres to [BEO-Timing](http://www.beo-timing.ch/).
 
 ## [Unreleased] ##
 
-## [01.01] - 2015-04-19 ##
+## [1.1.0] - 2015-04-19 ##
+### Changed ###
+- changed version numbering format
+
 ### Fixed ###
-- Added a timeout in the check_card transition to avoid a error behaviour in the field. 
-- Changed the connection_check function to work on python3 and fixed some errors in error case.
+- added a timeout in the check_card transition to avoid a error behaviour in the field. 
+- changed the connection_check function to work on python3 and fixed some errors in error case.
 
 ## [01.00] - 2015-04-04 33 ##
 First operational release
