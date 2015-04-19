@@ -1,2 +1,5 @@
 # do not track Python's compilation files
 *.pyc
+
+# do not track PyCharm files
+.idea/*
