@@ -90,6 +90,7 @@ def check_card_transition(txt):
     # check if a tag is present
     # the timeout seems to be needed if it's cold (?)
     time.sleep(CFG_BUTTON_POLL_TIME)
+    logging.debug('check rfid')
     if tag_reader.selectMifareUL():
         disp.display_backlight(True)
         exp.setRedLED(True)
