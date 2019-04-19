@@ -3,6 +3,7 @@
 PYTHON=/usr/bin/python3
 PROG=beotiming.py
 PROGPATH=/home/pi/beotiming/
+CONFIG=https://github.com/rzoss/beotiming.git
 export TZ="/usr/share/zoneinfo/Europe/Zurich"
 
 # Note: killing bash scripts does not work with BusyBox's "killall"
@@ -18,6 +19,7 @@ start()
 	while [ 1 ]
 	do
 		echo "********** start beotiming.py **********" >> /var/log/beotiming.log
+		wget $CONFIG
 		$PYTHON $PROG
 		sleep 1
 	done
